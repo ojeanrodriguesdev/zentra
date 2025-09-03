@@ -1,26 +1,69 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Fix para webkit-text-size-adjust warning */
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: 248 249 250;
+    --foreground: 26 26 26;
+    --card: 255 255 255;
+    --card-foreground: 26 26 26;
+    --popover: 255 255 255;
+    --popover-foreground: 26 26 26;
+    --primary: 107 70 193;
+    --primary-foreground: 255 255 255;
+    --secondary: 241 245 249;
+    --secondary-foreground: 71 85 105;
+    --muted: 107 114 128;
+    --muted-foreground: 107 114 128;
+    --accent: 56 178 172;
+    --accent-foreground: 255 255 255;
+    --destructive: 220 38 38;
+    --destructive-foreground: 255 255 255;
+    --border: 226 232 240;
+    --input: 255 255 255;
+    --ring: 107 70 193;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 26 27 30;
+    --foreground: 248 249 250;
+    --card: 39 39 42;
+    --card-foreground: 248 249 250;
+    --popover: 39 39 42;
+    --popover-foreground: 248 249 250;
+    --primary: 159 122 234;
+    --primary-foreground: 26 26 26;
+    --secondary: 39 39 42;
+    --secondary-foreground: 241 245 249;
+    --muted: 156 163 175;
+    --muted-foreground: 156 163 175;
+    --accent: 49 151 149;
+    --accent-foreground: 255 255 255;
+    --destructive: 239 68 68;
+    --destructive-foreground: 255 255 255;
+    --border: 63 63 70;
+    --input: 39 39 42;
+    --ring: 159 122 234;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-inter), system-ui, sans-serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-poppins), system-ui, sans-serif;
+  }
 }
