@@ -1,11 +1,11 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useMemo } from 'react';
+// import PropTypes from 'prop-types'; // Removido temporariamente
 import { 
   onAuthStateChanged, 
   signInWithPopup, 
-  signOut as firebaseSignOut,
-  User
+  signOut as firebaseSignOut
 } from 'firebase/auth';
 import { auth, googleProvider } from '@/lib/firebase';
 
@@ -77,14 +77,14 @@ export const AuthProvider = ({ children }) => {
     emailVerified: user.emailVerified
   } : null;
 
-  const value = {
+  const value = useMemo(() => ({
     user: userData,
     loading,
     error,
     isAuthenticated,
     signInWithGoogle,
     signOut
-  };
+  }), [userData, loading, error, isAuthenticated, signInWithGoogle, signOut]);
 
   return (
     <AuthContext.Provider value={value}>
@@ -92,3 +92,5 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+
+// PropTypes removidas temporariamente

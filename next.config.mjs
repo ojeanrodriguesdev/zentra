@@ -1,7 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Otimizações para performance
-  optimizeFonts: true,
   compress: true,
   
   // Desabilitar source maps completamente para evitar 404s

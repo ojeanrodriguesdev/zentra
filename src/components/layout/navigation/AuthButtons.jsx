@@ -69,7 +69,7 @@ export default function AuthButtons({
   if (isAuthenticated) {
     return (
       <div className={containerClasses} {...props}>
-        <UserProfile variant="minimal" />
+        <UserProfile variant="header" />
       </div>
     );
   }

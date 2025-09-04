@@ -7,7 +7,8 @@ export default function AuthGuard({
   children, 
   fallback = null,
   requireAuth = true,
-  redirectTo = '/login'
+  redirectTo = '/login',
+  allowHomeAccess = false
 }) {
   const { user, loading, isAuthenticated } = useAuth();
 
@@ -46,7 +47,7 @@ export default function AuthGuard({
   }
 
   // Se não requer autenticação mas usuário está logado (ex: página de login)
-  if (!requireAuth && isAuthenticated) {
+  if (!requireAuth && isAuthenticated && !allowHomeAccess) {
     if (fallback) {
       return fallback;
     }

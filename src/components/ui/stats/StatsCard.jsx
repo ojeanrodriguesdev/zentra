@@ -1,5 +1,6 @@
 'use client';
 
+// import PropTypes from 'prop-types'; // Removido temporariamente
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/cards';
 import { Loader2 } from 'lucide-react';
 
@@ -27,6 +28,14 @@ export default function StatsCard({
     green: 'bg-green-100 dark:bg-green-900/20',
     orange: 'bg-orange-100 dark:bg-orange-900/20',
     red: 'bg-red-100 dark:bg-red-900/20'
+  };
+
+  const getTrendColor = (positive) => {
+    return positive ? 'text-green-600' : 'text-red-600';
+  };
+
+  const getTrendIcon = (positive) => {
+    return positive ? '↗' : '↘';
   };
 
   return (
@@ -69,8 +78,8 @@ export default function StatsCard({
           {/* Trend indicator */}
           {trend && !loading && !error && (
             <div className="flex items-center space-x-1">
-              <span className={`text-xs ${trend.positive ? 'text-green-600' : 'text-red-600'}`}>
-                {trend.positive ? '↗' : '↘'} {trend.value}
+              <span className={`text-xs ${getTrendColor(trend.positive)}`}>
+                {getTrendIcon(trend.positive)} {trend.value}
               </span>
               <span className="text-xs text-slate-500">vs mês anterior</span>
             </div>
@@ -80,3 +89,5 @@ export default function StatsCard({
     </Card>
   );
 }
+
+// PropTypes removidas temporariamente

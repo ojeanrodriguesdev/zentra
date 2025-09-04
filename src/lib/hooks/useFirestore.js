@@ -8,6 +8,9 @@ import {
   orderBy 
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { countActiveProjects, countProjectMembers } from '@/lib/firestore/projects';
+import { countAllTasks } from '@/lib/firestore/tasks';
+import { useAuth } from '@/components/providers/auth';
 
 // Firestore sempre disponível em modo de desenvolvimento real
 
@@ -87,7 +90,8 @@ export function useFirestore(collectionName, filters = [], orderByField = null, 
       setError(err.message);
       setLoading(false);
     }
-  }, [collectionName, JSON.stringify(filters), orderByField, realtime]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [collectionName, orderByField, realtime]);
 
   return { data, loading, error, count: data.length };
 }
@@ -106,6 +110,7 @@ export function useFirestoreCount(collectionName, filters = []) {
  * Hook para estatísticas da dashboard
  */
 export function useDashboardStats() {
+  const { user } = useAuth();
   const [stats, setStats] = useState({
     projects: 0,
     tasks: 0,
@@ -115,34 +120,22 @@ export function useDashboardStats() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
     const fetchStats = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        const [projectsSnap, tasksSnap, membersSnap] = await Promise.all([
-          getDocs(collection(db, 'projects')),
-          getDocs(collection(db, 'tasks')),
-          getDocs(collection(db, 'members'))
+        // Usar as novas funções otimizadas
+        const [projects, tasks, members] = await Promise.all([
+          countActiveProjects(user.uid), // Projetos ativos do usuário
+          countAllTasks(user.uid),       // Total de tarefas do usuário (todos os status)
+          countProjectMembers(user.uid)  // Membros únicos nos projetos do usuário
         ]);
-
-        // Contar projetos ativos
-        const projects = projectsSnap.docs.filter(doc => {
-          const data = doc.data();
-          return data?.status === 'active';
-        }).length;
-
-        // Contar tarefas pendentes
-        const tasks = tasksSnap.docs.filter(doc => {
-          const data = doc.data();
-          return data?.status === 'pending';
-        }).length;
-
-        // Contar membros ativos
-        const members = membersSnap.docs.filter(doc => {
-          const data = doc.data();
-          return data?.active === true;
-        }).length;
 
         setStats({ projects, tasks, members });
         setError(null);
@@ -157,7 +150,9 @@ export function useDashboardStats() {
     };
 
     fetchStats();
-  }, []);
+  }, [user]);
 
   return { stats, loading, error };
 }
+
+

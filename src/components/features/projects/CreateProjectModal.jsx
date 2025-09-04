@@ -2,17 +2,25 @@
 
 import { useState } from 'react';
 import { Modal } from '@/components/ui/modals';
-import { Button } from '@/components/ui/buttons';
-import { Input } from '@/components/ui/inputs';
 import { useAuth } from '@/components/providers/auth';
 import { createProject } from '@/lib/firestore/projects';
+
+// import PropTypes from 'prop-types'; // Removido temporariamente
 
 export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
   const { user } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    priority: 'medium'
+    priority: 'medium',
+    category: '',
+    startDate: '',
+    endDate: '',
+    budget: '',
+    client: '',
+    team: [],
+    tags: [],
+    objectives: ''
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -29,18 +37,30 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
         ...formData,
         createdBy: user.uid,
         createdByName: user.displayName || user.email,
+        createdByEmail: user.email,
         status: 'active',
         createdAt: new Date(),
         updatedAt: new Date()
       };
 
+      console.log('📝 Criando projeto com dados:', projectData);
+      console.log('👤 User UID:', user.uid);
+      
       const projectId = await createProject(projectData);
       
       // Reset form
       setFormData({
         name: '',
         description: '',
-        priority: 'medium'
+        priority: 'medium',
+        category: '',
+        startDate: '',
+        endDate: '',
+        budget: '',
+        client: '',
+        team: [],
+        tags: [],
+        objectives: ''
       });
       
       // Callback para atualizar a lista
@@ -51,7 +71,19 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
       onClose();
     } catch (err) {
       console.error('Erro ao criar projeto:', err);
-      setError('Erro ao criar projeto. Tente novamente.');
+      
+      // Tratar erros específicos do Firebase
+      let errorMessage = 'Erro ao criar projeto. Tente novamente.';
+      
+      if (err.code === 'permission-denied') {
+        errorMessage = 'Permissão negada. Verifique as regras do Firestore.';
+      } else if (err.code === 'unavailable') {
+        errorMessage = 'Serviço indisponível. Tente novamente em alguns instantes.';
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -70,7 +102,7 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
       isOpen={isOpen} 
       onClose={onClose} 
       title="Criar Novo Projeto"
-      size="sm"
+      size="lg"
     >
       <form onSubmit={handleSubmit} className="space-y-5">
         {error && (
@@ -79,59 +111,168 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
           </div>
         )}
 
-        <div className="space-y-4">
-          {/* Nome do Projeto */}
-          <div>
-            <label htmlFor="project-name" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-              Nome do Projeto
-            </label>
-            <input
-              id="project-name"
-              name="name"
-              type="text"
-              value={formData.name}
-              onChange={handleInputChange}
-              placeholder="Digite o nome do projeto"
-              required
-              disabled={isLoading}
-              className="w-full px-3 py-2.5 border border-slate-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-zinc-700 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-colors"
-            />
+        <div className="space-y-5">
+          {/* Grid 2 colunas para campos principais */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Nome do Projeto */}
+            <div className="md:col-span-2">
+              <label htmlFor="project-name" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                Nome do Projeto *
+              </label>
+              <input
+                id="project-name"
+                name="name"
+                type="text"
+                value={formData.name}
+                onChange={handleInputChange}
+                placeholder="Ex: App Mobile, Website Corporativo..."
+                required
+                disabled={isLoading}
+                className="w-full px-3 py-2.5 border border-slate-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-zinc-700 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-colors"
+              />
+            </div>
+
+            {/* Categoria */}
+            <div>
+              <label htmlFor="project-category" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                Categoria
+              </label>
+              <select
+                id="project-category"
+                name="category"
+                value={formData.category}
+                onChange={handleInputChange}
+                disabled={isLoading}
+                className="w-full px-3 py-2.5 border border-slate-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-zinc-700 dark:text-white transition-colors"
+              >
+                <option value="">Selecionar categoria</option>
+                <option value="desenvolvimento">💻 Desenvolvimento</option>
+                <option value="design">🎨 Design</option>
+                <option value="marketing">📈 Marketing</option>
+                <option value="consultoria">💼 Consultoria</option>
+                <option value="educacao">📚 Educação</option>
+                <option value="outros">🔧 Outros</option>
+              </select>
+            </div>
+
+            {/* Prioridade */}
+            <div>
+              <label htmlFor="project-priority" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                Prioridade
+              </label>
+              <select
+                id="project-priority"
+                name="priority"
+                value={formData.priority}
+                onChange={handleInputChange}
+                disabled={isLoading}
+                className="w-full px-3 py-2.5 border border-slate-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-zinc-700 dark:text-white transition-colors"
+              >
+                <option value="low">🟢 Baixa</option>
+                <option value="medium">🟡 Média</option>
+                <option value="high">🔴 Alta</option>
+              </select>
+            </div>
+
+            {/* Cliente */}
+            <div>
+              <label htmlFor="project-client" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                Cliente
+              </label>
+              <input
+                id="project-client"
+                name="client"
+                type="text"
+                value={formData.client}
+                onChange={handleInputChange}
+                placeholder="Nome do cliente"
+                disabled={isLoading}
+                className="w-full px-3 py-2.5 border border-slate-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-zinc-700 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-colors"
+              />
+            </div>
+
+            {/* Orçamento */}
+            <div>
+              <label htmlFor="project-budget" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                Orçamento (R$)
+              </label>
+              <input
+                id="project-budget"
+                name="budget"
+                type="number"
+                value={formData.budget}
+                onChange={handleInputChange}
+                placeholder="Ex: 5000"
+                disabled={isLoading}
+                className="w-full px-3 py-2.5 border border-slate-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-zinc-700 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-colors"
+              />
+            </div>
+
+            {/* Data de Início */}
+            <div>
+              <label htmlFor="project-start" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                Data de Início
+              </label>
+              <input
+                id="project-start"
+                name="startDate"
+                type="date"
+                value={formData.startDate}
+                onChange={handleInputChange}
+                disabled={isLoading}
+                className="w-full px-3 py-2.5 border border-slate-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-zinc-700 dark:text-white transition-colors"
+              />
+            </div>
+
+            {/* Data de Término */}
+            <div>
+              <label htmlFor="project-end" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                Data de Término
+              </label>
+              <input
+                id="project-end"
+                name="endDate"
+                type="date"
+                value={formData.endDate}
+                onChange={handleInputChange}
+                disabled={isLoading}
+                className="w-full px-3 py-2.5 border border-slate-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-zinc-700 dark:text-white transition-colors"
+              />
+            </div>
           </div>
 
           {/* Descrição */}
           <div>
             <label htmlFor="project-description" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-              Descrição (opcional)
+              Descrição
             </label>
             <textarea
               id="project-description"
               name="description"
               value={formData.description}
               onChange={handleInputChange}
-              placeholder="Descreva o projeto..."
-              rows={2}
+              placeholder="Descreva o projeto, escopo, objetivos..."
+              rows={3}
               disabled={isLoading}
               className="w-full px-3 py-2.5 border border-slate-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-zinc-700 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 resize-none transition-colors"
             />
           </div>
 
-          {/* Prioridade */}
+          {/* Objetivos */}
           <div>
-            <label htmlFor="project-priority" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-              Prioridade
+            <label htmlFor="project-objectives" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              Objetivos Principais
             </label>
-            <select
-              id="project-priority"
-              name="priority"
-              value={formData.priority}
+            <textarea
+              id="project-objectives"
+              name="objectives"
+              value={formData.objectives}
               onChange={handleInputChange}
+              placeholder="Quais são os principais objetivos a serem alcançados?"
+              rows={2}
               disabled={isLoading}
-              className="w-full px-3 py-2.5 border border-slate-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-zinc-700 dark:text-white transition-colors"
-            >
-              <option value="low">🟢 Baixa</option>
-              <option value="medium">🟡 Média</option>
-              <option value="high">🔴 Alta</option>
-            </select>
+              className="w-full px-3 py-2.5 border border-slate-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-zinc-700 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 resize-none transition-colors"
+            />
           </div>
         </div>
 
@@ -167,3 +308,5 @@ export default function CreateProjectModal({ isOpen, onClose, onProjectCreated }
     </Modal>
   );
 }
+
+// PropTypes removidas temporariamente

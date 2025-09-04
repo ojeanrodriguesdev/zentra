@@ -1,27 +1,22 @@
-'use client';
+'use client'
 
-import { Button } from '@/components/ui';
-import { useAuth } from '@/components/providers/auth';
+import { Button } from '@/components/ui'
+import { useAuth } from '@/components/providers/auth'
 
 export default function HeroSection() {
-  const { isAuthenticated } = useAuth();
-
-  // Se usuário está logado, não mostra hero
-  if (isAuthenticated) {
-    return null;
-  }
+  const { isAuthenticated } = useAuth()
 
   const handleGetStarted = () => {
-    window.location.href = '/login';
-  };
+    window.location.href = '/login'
+  }
 
   const handleViewFeatures = () => {
     // Scroll para seção de funcionalidades (implementar depois)
-    const featuresSection = document.getElementById('features');
+    const featuresSection = document.getElementById('features')
     if (featuresSection) {
-      featuresSection.scrollIntoView({ behavior: 'smooth' });
+      featuresSection.scrollIntoView({ behavior: 'smooth' })
     }
-  };
+  }
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
@@ -29,18 +24,17 @@ export default function HeroSection() {
         <div className="relative py-16 md:py-24 lg:py-32">
           {/* Grid Layout - Mobile: 1 col, Desktop: 2 cols */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            
             {/* Conteúdo Textual - Left Side */}
             <div className="text-center lg:text-left space-y-8">
               {/* Badge/Tag */}
               <div className="inline-flex items-center px-4 py-2 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-sm font-medium">
                 <span className="w-2 h-2 bg-purple-500 rounded-full mr-2 animate-pulse"></span>
-                Produtividade sem complicação
+                {' '}Produtividade sem complicação
               </div>
 
               {/* Título Principal */}
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white leading-tight">
-                <span className="block">Organize seu tempo,</span>
+                <span className="block">Organize <br/>seu tempo,</span>
                 <span className="block text-purple-600 dark:text-purple-400">
                   clientes e tarefas
                 </span>
@@ -49,7 +43,8 @@ export default function HeroSection() {
 
               {/* Subtítulo */}
               <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                O Zentra é a central da sua rotina — CRM leve, agenda integrada e tarefas compartilhadas, tudo com simplicidade.
+                O Zentra é a central da sua rotina — CRM leve, agenda integrada e tarefas
+                compartilhadas, tudo com simplicidade.
               </p>
 
               {/* Botões de Ação */}
@@ -57,23 +52,43 @@ export default function HeroSection() {
                 <Button
                   size="lg"
                   onClick={handleGetStarted}
-                  className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+                  className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-8 text-md font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
                 >
                   Começar gratuitamente
-                  <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  <svg
+                    className="ml-2 w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 7l5 5m0 0l-5 5m5-5H6"
+                    />
                   </svg>
                 </Button>
-                
+
                 <Button
                   variant="outline"
                   size="lg"
                   onClick={handleViewFeatures}
-                  className="border-purple-200 dark:border-purple-700 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-200"
+                  className="border-purple-200 dark:border-purple-700 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 px-12 py-8 text-md font-semibold rounded-xl transition-all duration-200"
                 >
                   Ver funcionalidades
-                  <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  <svg
+                    className="ml-2 w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
                   </svg>
                 </Button>
               </div>
@@ -81,20 +96,44 @@ export default function HeroSection() {
               {/* Social Proof / Stats */}
               <div className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start text-sm text-gray-500 dark:text-gray-400">
                 <div className="flex items-center">
-                  <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  <svg
+                    className="w-5 h-5 text-green-500 mr-2"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                   Grátis para sempre
                 </div>
                 <div className="flex items-center">
-                  <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  <svg
+                    className="w-5 h-5 text-green-500 mr-2"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                   Sem cartão de crédito
                 </div>
                 <div className="flex items-center">
-                  <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  <svg
+                    className="w-5 h-5 text-green-500 mr-2"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                   Setup em 2 minutos
                 </div>
@@ -172,11 +211,14 @@ export default function HeroSection() {
 
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-30 dark:opacity-20">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, rgba(139, 92, 246, 0.2) 1px, transparent 0)`,
-          backgroundSize: '24px 24px'
-        }}></div>
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, rgba(139, 92, 246, 0.2) 1px, transparent 0)`,
+            backgroundSize: '24px 24px',
+          }}
+        ></div>
       </div>
     </section>
-  );
+  )
 }
