@@ -1,11 +1,21 @@
 // Auth Pages
 export { default as LoginPage } from './auth/LoginPage.jsx';
+export { AcceptInvitePage } from './auth';
 
 // Home Pages
 export { default as HomePage } from './home/HomePage.jsx';
 
 // Dashboard Pages
 // export { default as DashboardPage } from './dashboard/DashboardPage.jsx';
+
+// Tasks Pages
+export { TasksPage } from './tasks';
+
+// Projects Pages
+export { ProjectsPage, ProjectMembersPage } from './projects';
+
+// Members Pages
+export { MembersPage } from './members';
 
 // Profile Pages
 // export { default as ProfilePage } from './profile/ProfilePage.jsx';

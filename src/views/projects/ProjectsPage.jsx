@@ -1,19 +1,22 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/layout';
 import { AuthGuard } from '@/components/features/auth';
 import { Button } from '@/components/ui/buttons';
 import { DropdownMenu, DropdownItem, ConfirmationModal } from '@/components/ui';
 import { CreateProjectModal } from '@/components/features/projects';
-import { CreateTaskModal, TaskDetailsModal, EditTaskModal } from '@/components/features/tasks';
+import { CreateTaskModal, TaskDetailsModal, EditTaskModal, TaskCommentCount } from '@/components/features/tasks';
 import { useAuth } from '@/components/providers/auth';
 import { getUserProjects, deleteProject } from '@/lib/firestore/projects';
+import { useMultipleProjectPermissions } from '@/lib/hooks';
 import { getProjectTasks, deleteTask } from '@/lib/firestore/tasks';
-import { FolderKanban, Plus, Calendar, User, MoreVertical, Filter, CheckSquare } from 'lucide-react';
+import { FolderKanban, Plus, Calendar, User, MoreVertical, Filter, CheckSquare, Users } from 'lucide-react';
 
 export default function ProjectsPage() {
   const { user } = useAuth();
+  const router = useRouter();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,6 +31,10 @@ export default function ProjectsPage() {
   const [projectTasks, setProjectTasks] = useState({});
   const [filter, setFilter] = useState('all'); // all, active, completed
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Verificar permissões para todos os projetos
+  const projectIds = useMemo(() => projects.map(project => project.id), [projects]);
+  const { permissions: projectPermissions } = useMultipleProjectPermissions(projectIds);
 
   useEffect(() => {
     if (user) {
@@ -311,13 +318,25 @@ export default function ProjectsPage() {
               </div>
               
               <div className="flex items-center space-x-2">
-                <button 
-                  onClick={() => handleCreateTask(project)}
-                  className="flex items-center space-x-2 px-3 py-1.5 text-sm font-medium text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors"
-                >
-                  <CheckSquare size={14} />
-                  <span>Nova Tarefa</span>
-                </button>
+                {projectPermissions[project.id]?.canCreateTasks && (
+                  <button 
+                    onClick={() => handleCreateTask(project)}
+                    className="flex items-center space-x-2 px-3 py-1.5 text-sm font-medium text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors"
+                  >
+                    <CheckSquare size={14} />
+                    <span>Nova Tarefa</span>
+                  </button>
+                )}
+                
+                                {projectPermissions[project.id]?.canManageMembers && (
+                  <button
+                    onClick={() => router.push(`/projects/${project.id}/members`)}
+                    className="flex items-center space-x-2 px-3 py-1.5 text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
+                  >
+                    <Users size={14} />
+                    <span>Membros</span>
+                  </button>
+                )}
                 
                 <DropdownMenu
                   trigger={
@@ -327,13 +346,15 @@ export default function ProjectsPage() {
                   }
                   align="right"
                 >
-                  <DropdownItem
-                    onClick={() => handleDeleteProject(project)}
-                    icon="🗑️"
-                    variant="danger"
-                  >
-                    Deletar Projeto
-                  </DropdownItem>
+                  {projectPermissions[project.id]?.canDeleteProject && (
+                    <DropdownItem
+                      onClick={() => handleDeleteProject(project)}
+                      icon="🗑️"
+                      variant="danger"
+                    >
+                      Deletar Projeto
+                    </DropdownItem>
+                  )}
                 </DropdownMenu>
               </div>
             </div>
@@ -369,12 +390,13 @@ export default function ProjectsPage() {
                         <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(task.priority)}`}>
                           {getPriorityLabel(task.priority)}
                         </span>
+                        <TaskCommentCount taskId={task.id} />
                         
                         <DropdownMenu
                           trigger={
                             <button 
-                              onClick={(e) => e.stopPropagation()}
-                              className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors rounded opacity-0 group-hover:opacity-100"
+                              className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-zinc-700 opacity-100"
+                              title="Opções da tarefa"
                             >
                               <MoreVertical size={12} />
                             </button>
@@ -388,20 +410,24 @@ export default function ProjectsPage() {
                             Ver Detalhes
                           </DropdownItem>
                           
-                          <DropdownItem
-                            onClick={() => handleEditTask(task)}
-                            icon="✏️"
-                          >
-                            Editar Tarefa
-                          </DropdownItem>
+                          {projectPermissions[project.id]?.canEditTasks && (
+                            <DropdownItem
+                              onClick={() => handleEditTask(task)}
+                              icon="✏️"
+                            >
+                              Editar Tarefa
+                            </DropdownItem>
+                          )}
                           
-                          <DropdownItem
-                            onClick={() => handleDeleteTask(task)}
-                            icon="🗑️"
-                            variant="danger"
-                          >
-                            Deletar Tarefa
-                          </DropdownItem>
+                          {projectPermissions[project.id]?.canDeleteTasks && (
+                            <DropdownItem
+                              onClick={() => handleDeleteTask(task)}
+                              icon="🗑️"
+                              variant="danger"
+                            >
+                              Deletar Tarefa
+                            </DropdownItem>
+                          )}
                         </DropdownMenu>
                       </div>
                     </div>
@@ -433,10 +459,10 @@ export default function ProjectsPage() {
 
   return (
     <AuthGuard requireAuth={true} redirectTo="/login">
-      <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
         <Sidebar />
 
-        <main className="flex-1 overflow-hidden">
+        <main className="ml-0 lg:ml-64 min-h-screen overflow-y-auto">
           <div className="p-6 md:p-8">
             <div className="max-w-7xl mx-auto">
               {/* Header */}

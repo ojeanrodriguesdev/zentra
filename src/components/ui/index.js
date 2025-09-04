@@ -18,3 +18,6 @@ export * from './dropdown';
 
 // Stats
 export * from './stats';
+
+// Tooltip
+export * from './tooltip';

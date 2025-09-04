@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Modal } from '@/components/ui/modals';
 import { updateTask } from '@/lib/firestore/tasks';
+import { useProjectPermissions } from '@/lib/hooks';
 
 export default function EditTaskModal({ isOpen, onClose, task, onTaskUpdated }) {
   const [formData, setFormData] = useState({
@@ -14,6 +15,9 @@ export default function EditTaskModal({ isOpen, onClose, task, onTaskUpdated }) 
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // Verificar permissões do usuário no projeto
+  const { canEditTasks, canMarkTaskCompleted, canChangeTaskStatus, role } = useProjectPermissions(task?.projectId);
 
   // Preencher formulário quando task mudar
   useEffect(() => {
@@ -163,9 +167,14 @@ export default function EditTaskModal({ isOpen, onClose, task, onTaskUpdated }) 
               >
                 <option value="pending">⏳ Pendente</option>
                 <option value="in_progress">🔄 Em Progresso</option>
-                <option value="completed">✅ Concluída</option>
-                <option value="cancelled">❌ Cancelada</option>
+                {canMarkTaskCompleted && <option value="completed">✅ Concluída</option>}
+                {role === 'owner' && <option value="cancelled">❌ Cancelada</option>}
               </select>
+              {role === 'collaborator' && (
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                  Como colaborador, você pode alterar o status para "Pendente" ou "Em Progresso"
+                </p>
+              )}
             </div>
           </div>
 

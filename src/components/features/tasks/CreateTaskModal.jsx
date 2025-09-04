@@ -4,9 +4,11 @@ import { useState } from 'react';
 import { Modal } from '@/components/ui/modals';
 import { useAuth } from '@/components/providers/auth';
 import { createTask } from '@/lib/firestore/tasks';
+import { useTeamMembers } from '@/lib/hooks';
 
 export default function CreateTaskModal({ isOpen, onClose, project, onTaskCreated }) {
   const { user } = useAuth();
+  const { members, loading: membersLoading } = useTeamMembers();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -34,7 +36,13 @@ export default function CreateTaskModal({ isOpen, onClose, project, onTaskCreate
         createdBy: user.uid,
         createdByName: user.displayName || user.email,
         assignedTo: formData.assignedTo || user.uid, // Se não especificado, atribui ao criador
-        assignedToName: formData.assignedTo ? 'Membro' : (user.displayName || user.email),
+        assignedToName: (() => {
+          if (!formData.assignedTo || formData.assignedTo === user.uid) {
+            return user.displayName || user.email;
+          }
+          const assignedMember = members.find(member => member.id === formData.assignedTo);
+          return assignedMember ? assignedMember.name : 'Membro';
+        })(),
         createdAt: new Date(),
         updatedAt: new Date()
       };
@@ -162,20 +170,50 @@ export default function CreateTaskModal({ isOpen, onClose, project, onTaskCreate
             </div>
           </div>
 
-          {/* Data de Vencimento */}
-          <div>
-            <label htmlFor="task-due-date" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-              Data de Vencimento
-            </label>
-            <input
-              id="task-due-date"
-              name="dueDate"
-              type="date"
-              value={formData.dueDate}
-              onChange={handleInputChange}
-              disabled={isLoading}
-              className="w-full px-3 py-2.5 border border-slate-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-zinc-700 dark:text-white transition-colors"
-            />
+          {/* Grid 2 colunas - Data e Responsável */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Data de Vencimento */}
+            <div>
+              <label htmlFor="task-due-date" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                Data de Vencimento
+              </label>
+              <input
+                id="task-due-date"
+                name="dueDate"
+                type="date"
+                value={formData.dueDate}
+                onChange={handleInputChange}
+                disabled={isLoading}
+                className="w-full px-3 py-2.5 border border-slate-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-zinc-700 dark:text-white transition-colors"
+              />
+            </div>
+
+            {/* Responsável pela Tarefa */}
+            <div>
+              <label htmlFor="task-assigned-to" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                Responsável
+              </label>
+              <select
+                id="task-assigned-to"
+                name="assignedTo"
+                value={formData.assignedTo}
+                onChange={handleInputChange}
+                disabled={isLoading || membersLoading}
+                className="w-full px-3 py-2.5 border border-slate-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-zinc-700 dark:text-white transition-colors"
+              >
+                <option value="">👤 Atribuir a mim</option>
+                {members.map(member => (
+                  <option key={member.id} value={member.id}>
+                    {member.role === 'admin' ? '👑' : member.role === 'manager' ? '📋' : '👤'} {member.name}
+                  </option>
+                ))}
+              </select>
+              {membersLoading && (
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                  Carregando membros...
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Descrição */}

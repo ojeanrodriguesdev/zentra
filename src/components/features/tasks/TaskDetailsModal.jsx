@@ -1,9 +1,14 @@
 'use client';
 
 import { Modal } from '@/components/ui/modals';
+import { useProjectPermissions } from '@/lib/hooks';
+import TaskComments from './TaskComments';
 
 export default function TaskDetailsModal({ isOpen, onClose, task, onEdit }) {
   if (!task) return null;
+
+  // Verificar permissões do usuário no projeto
+  const { canEditTasks } = useProjectPermissions(task.projectId);
 
   const getStatusLabel = (status) => {
     switch (status) {
@@ -148,6 +153,11 @@ export default function TaskDetailsModal({ isOpen, onClose, task, onEdit }) {
           </div>
         </div>
 
+        {/* Seção de Comentários */}
+        <div className="pt-6 border-t border-slate-200 dark:border-zinc-700">
+          <TaskComments taskId={task.id} projectId={task.projectId} />
+        </div>
+
         {/* Botões de ação */}
         <div className="flex justify-end space-x-3 pt-6 border-t border-slate-200 dark:border-zinc-700">
           <button
@@ -158,16 +168,18 @@ export default function TaskDetailsModal({ isOpen, onClose, task, onEdit }) {
             Fechar
           </button>
           
-          <button
-            type="button"
-            onClick={() => {
-              onEdit(task);
-              onClose();
-            }}
-            className="px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 rounded-lg transition-colors"
-          >
-            Editar Tarefa
-          </button>
+          {canEditTasks && (
+            <button
+              type="button"
+              onClick={() => {
+                onEdit(task);
+                onClose();
+              }}
+              className="px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 rounded-lg transition-colors"
+            >
+              Editar Tarefa
+            </button>
+          )}
         </div>
       </div>
     </Modal>

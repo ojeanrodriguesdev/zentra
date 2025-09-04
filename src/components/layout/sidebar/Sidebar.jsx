@@ -8,6 +8,7 @@ import {
   Settings,
   LogOut
 } from 'lucide-react';
+import PropTypes from 'prop-types';
 import SidebarClock from './SidebarClock';
 import SidebarItem from './SidebarItem';
 import SidebarSection from './SidebarSection';
@@ -57,7 +58,7 @@ export default function Sidebar({ className = '' }) {
   };
 
   return (
-    <aside className={`w-64 min-h-screen bg-white dark:bg-zinc-900 border-r border-slate-200 dark:border-zinc-700 flex flex-col ${className}`}>
+    <aside className={`fixed left-0 top-0 w-64 h-screen bg-white dark:bg-zinc-900 border-r border-slate-200 dark:border-zinc-700 flex flex-col z-10 transform transition-transform duration-300 -translate-x-full lg:translate-x-0 ${className}`}>
       {/* Logo Section */}
       <div className="px-6 py-6 border-b border-slate-200 dark:border-zinc-700">
         <div className="flex items-center space-x-3">
@@ -123,3 +124,7 @@ export default function Sidebar({ className = '' }) {
     </aside>
   );
 }
+
+Sidebar.propTypes = {
+  className: PropTypes.string
+};

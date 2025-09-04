@@ -36,9 +36,16 @@ export default function DropdownMenu({ trigger, children, align = 'right' }) {
     center: 'left-1/2 transform -translate-x-1/2'
   };
 
+  const handleTriggerClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('DropdownMenu trigger clicked, current isOpen:', isOpen); // Debug
+    setIsOpen(!isOpen);
+  };
+
   return (
     <div className="relative" ref={dropdownRef}>
-      <div onClick={() => setIsOpen(!isOpen)}>
+      <div onClick={handleTriggerClick}>
         {trigger}
       </div>
       
@@ -57,9 +64,18 @@ export function DropdownItem({ onClick, icon, children, variant = 'default', dis
     danger: 'text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
   };
 
+  const handleClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('DropdownItem clicked:', children); // Debug
+    if (onClick) {
+      onClick();
+    }
+  };
+
   return (
     <button
-      onClick={onClick}
+      onClick={handleClick}
       disabled={disabled}
       className={`w-full flex items-center space-x-2 px-3 py-2 text-sm transition-colors ${variantClasses[variant]} ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
     >

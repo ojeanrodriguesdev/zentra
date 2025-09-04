@@ -8,7 +8,7 @@ import {
   orderBy 
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { countActiveProjects, countProjectMembers } from '@/lib/firestore/projects';
+import { countActiveProjects, countCompletedProjects, countProjectMembers } from '@/lib/firestore/projects';
 import { countAllTasks } from '@/lib/firestore/tasks';
 import { useAuth } from '@/components/providers/auth';
 
@@ -113,6 +113,7 @@ export function useDashboardStats() {
   const { user } = useAuth();
   const [stats, setStats] = useState({
     projects: 0,
+    completedProjects: 0,
     tasks: 0,
     members: 0
   });
@@ -131,19 +132,20 @@ export function useDashboardStats() {
 
       try {
         // Usar as novas funções otimizadas
-        const [projects, tasks, members] = await Promise.all([
-          countActiveProjects(user.uid), // Projetos ativos do usuário
-          countAllTasks(user.uid),       // Total de tarefas do usuário (todos os status)
-          countProjectMembers(user.uid)  // Membros únicos nos projetos do usuário
+        const [projects, completedProjects, tasks, members] = await Promise.all([
+          countActiveProjects(user.uid),    // Projetos ativos do usuário
+          countCompletedProjects(user.uid), // Projetos concluídos do usuário
+          countAllTasks(user.uid),          // Total de tarefas do usuário (todos os status)
+          countProjectMembers(user.uid)     // Membros únicos nos projetos do usuário
         ]);
 
-        setStats({ projects, tasks, members });
+        setStats({ projects, completedProjects, tasks, members });
         setError(null);
         
       } catch (err) {
         console.error('Erro ao buscar estatísticas:', err);
         setError('Erro ao carregar estatísticas');
-        setStats({ projects: 0, tasks: 0, members: 0 });
+        setStats({ projects: 0, completedProjects: 0, tasks: 0, members: 0 });
       } finally {
         setLoading(false);
       }

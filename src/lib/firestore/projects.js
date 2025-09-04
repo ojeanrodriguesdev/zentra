@@ -172,6 +172,20 @@ export async function countActiveProjects(userId) {
 }
 
 /**
+ * Contar projetos concluídos de um usuário
+ */
+export async function countCompletedProjects(userId) {
+  try {
+    const allProjects = await getUserProjects(userId);
+    const completedProjects = allProjects.filter(project => project.status === 'completed');
+    return completedProjects.length;
+  } catch (error) {
+    console.error('Erro ao contar projetos concluídos:', error);
+    return 0;
+  }
+}
+
+/**
  * Contar membros únicos em projetos do usuário
  */
 export async function countProjectMembers(userId) {
